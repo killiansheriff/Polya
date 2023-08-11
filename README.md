@@ -1,5 +1,5 @@
 # Polya 
-A python implementation of Polya's enumeration theory.
+A python implementation of Polya's enumeration theory (pattern inventory).
 
 # Usage 
 ```python
