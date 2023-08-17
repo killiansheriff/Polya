@@ -1,6 +1,7 @@
 import itertools
 
 import igraph
+import matplotlib.pyplot as plt
 import numpy as np
 import sympy as sp
 from sympy.combinatorics.perm_groups import PermutationGroup
@@ -26,8 +27,10 @@ class Polya:
         self.graph_generators = {
             "fcc": self.get_fcc_1nn_graph,
             "bcc": self.get_bcc_1nn_graph,
+            "fcc_1nn2nn": self.get_fcc_1nn_2nn_graph,
             "hcp": self.get_hcp_1nn_graph,
             "fcc_1nn2nn3nn": self.get_fcc_1nn_2nn_3nn_graph,
+            "bcc_1nn2nn": self.get_bcc_1nn_2nn_graph,
         }
         self.graph_name = graph_name
         self.ntypes = ntypes
@@ -79,165 +82,56 @@ class Polya:
         g.add_edges(edges)
         g.vs["pos"] = vertexpositions
 
-        # Quick viz plotting
-        # import matplotlib.pyplot as plt
-        # fig, (ax0, ax1) = plt.subplots(nrows=1, ncols=2, figsize=(12, 6))
-        # h = g
-        # # igraph draw
-        # ax1.set_title("Plot with igraph plot")
-        # layout = h.layout_kamada_kawai()
-        # igraph.plot(h, layout=layout, target=ax1)
-        # plt.axis("off")
-        # plt.savefig("1nn2nn3nn.png")
-
         return g
 
     def get_fcc_1nn_graph(self):
         # Define the vertex positions
-        C0 = 0.816496580927726032732428024902
-        vertexpositions = np.array(
-            [
-                # (0, 0, 0),
-                (C0, 0.0, C0),
-                (C0, 0.0, -C0),
-                (-C0, 0.0, C0),
-                (-C0, 0.0, -C0),
-                (C0, C0, 0.0),
-                (C0, -C0, 0.0),
-                (-C0, C0, 0.0),
-                (-C0, -C0, 0.0),
-                (0.0, C0, C0),
-                (0.0, C0, -C0),
-                (0.0, -C0, C0),
-                (0.0, -C0, -C0),
-            ]
-        )
+        # 1NN atoms (sqrt(2)/2 away)
+        coords = self.generate_permutations((0, 1 / 2, 1 / 2), np.zeros((1, 3)))
+        vertexpositions = coords[1:]
 
         g = igraph.Graph()
         g.add_vertices(len(vertexpositions))
-        edges, distances = self.get_edges(vertexpositions, 1.154)
+        edges, distances = self.get_edges(vertexpositions, 1 / np.sqrt(2))
+
         g.add_edges(edges)
         g.vs["pos"] = vertexpositions
 
         return g
 
-    def get_fcc_1nn2nn_graph(self):
-        # Define the vertex positions
-        C0 = 0.816496580927726032732428024902
-        C1 = 1.035276180410083049395595350496
+    def get_fcc_1nn_2nn_graph(self):
+        # Central atom (Origin)
+        coords = np.zeros((1, 3))
+        # 1NN atoms (sqrt(2)/2 away)
+        values = (0, 1 / 2, 1 / 2)
+        coords = self.generate_permutations(values, coords)
 
-        vertexposition = [
-            (0.0, 0.0, C1),
-            (0.0, 0.0, -C1),
-            (C1, 0.0, 0.0),
-            (-C1, 0.0, 0.0),
-            (0.0, C1, 0.0),
-            (0.0, -C1, 0.0),
-            (C0, 0.0, C0),
-            (C0, 0.0, -C0),
-            (-C0, 0.0, C0),
-            (-C0, 0.0, -C0),
-            (C0, C0, 0.0),
-            (C0, -C0, 0.0),
-            (-C0, C0, 0.0),
-            (-C0, -C0, 0.0),
-            (0.0, C0, C0),
-            (0.0, C0, -C0),
-            (0.0, -C0, C0),
-            (0.0, -C0, -C0),
-        ]
+        # 2NN atoms (1.0 away)
+        values = (0, 0, 1)
+        coords = self.generate_permutations(values, coords)
 
-        # Create an empty igraph graph object
+        # remove central atom
+        vertexpositions = coords[1:]
+
         g = igraph.Graph()
-
-        # Add vertices to the graph
-        g.add_vertices(len(vertexposition))
-
-        # Add edges to the graph
-        edges = (
-            np.array(
-                [
-                    (15, 9),
-                    (9, 17),
-                    (17, 7),
-                    (7, 15),
-                    (10, 18),
-                    (18, 8),
-                    (8, 16),
-                    (16, 10),
-                    (8, 12),
-                    (8, 11),
-                    (11, 7),
-                    (7, 12),
-                    (9, 14),
-                    (14, 10),
-                    (10, 13),
-                    (13, 9),
-                    (15, 13),
-                    (13, 16),
-                    (16, 11),
-                    (11, 15),
-                    (14, 17),
-                    (17, 12),
-                    (12, 18),
-                    (18, 14),
-                    (1, 15),
-                    (1, 9),
-                    (1, 17),
-                    (1, 7),
-                    (5, 11),
-                    (5, 15),
-                    (5, 13),
-                    (5, 16),
-                    (2, 8),
-                    (2, 16),
-                    (2, 18),
-                    (2, 10),
-                    (3, 7),
-                    (3, 11),
-                    (3, 8),
-                    (3, 12),
-                    (6, 17),
-                    (6, 14),
-                    (6, 18),
-                    (6, 12),
-                    (4, 9),
-                    (4, 13),
-                    (4, 10),
-                    (4, 14),
-                ]
-            )
-            - 1
-        )
-
+        g.add_vertices(len(vertexpositions))
+        edges, distances = self.get_edges(vertexpositions, np.sqrt(2) / 2)
         g.add_edges(edges)
-
-        # Set the vertex positions
-        g.vs["pos"] = vertexposition
+        g.vs["pos"] = vertexpositions
 
         return g
 
     def get_bcc_1nn_graph(self):
-        vertexpositions = np.array(
-            [
-                # [0, 0, 0],
-                [1, 1, 1],
-                [1, 1, -1],
-                [1, -1, 1],
-                [1, -1, -1],
-                [-1, 1, 1],
-                [-1, 1, -1],
-                [-1, -1, 1],
-                [-1, -1, -1],
-            ]
-        )
+        vertexpositions = np.array(list(itertools.product([-1, 1], repeat=3))) * 0.5
+
         # Create an empty igraph graph object
         g = igraph.Graph(directed=False)
 
         g.add_vertices(len(vertexpositions))
 
-        edges_1nn, distances = self.get_edges(vertexpositions, 1.73)
-        edges_2nn, _ = self.get_edges(vertexpositions, 2)
+        edges_1nn, distances = self.get_edges(vertexpositions, np.sqrt(3) / 2)
+
+        edges_2nn, _ = self.get_edges(vertexpositions, 1)
 
         if len(edges_1nn) > 0:
             edges = np.concatenate([edges_1nn, edges_2nn])
@@ -248,34 +142,30 @@ class Polya:
 
         return g
 
+    def get_bcc_1nn_2nn_graph(self):
+        vertex_1nn = np.array(list(itertools.product([-1, 1], repeat=3))) * 0.5
+        vertex_2nn = np.array(
+            [[1, 0, 0], [0, 1, 0], [0, 0, 1], [-1, 0, 0], [0, -1, 0], [0, 0, -1]]
+        )
+
+        vertexpositions = np.concatenate((vertex_1nn, vertex_2nn))
+
+        g = igraph.Graph()
+        g.add_vertices(len(vertexpositions))
+        edges_1nn, distances = self.get_edges(vertexpositions, 0.8660254)
+        edges_2nn, _ = self.get_edges(vertexpositions, 1)
+        edges = np.concatenate((edges_1nn, edges_2nn))  #!!! NOT SURE
+
+        g.add_edges(edges)
+        g.vs["pos"] = vertexpositions
+        return g
+
     def get_hcp_1nn_graph(self):
         # Define positions of nearest neighbors relative to central atom at (0, 0, 0)
 
         # Define the lattice parameters
         a = 1
         c = np.sqrt(8 / 3)
-
-        # Define the positions of the first nearest neighbors
-        # vertexpositions = np.array(
-        #     [
-        #         (0, 0, 0),
-        #         (1, 0, 0),
-        #         (-1, 0, 0),
-
-        #         (1 / 2, np.sqrt(3) * a / 2, 0),
-        #         (-a / 2, -np.sqrt(3) * a / 2, 0),
-
-        #         (a / 2, 0, c / 2),
-        #         (-a / 2, 0, c / 2),
-        #         (0, np.sqrt(3) * a / 2, c / 2),
-        #         (0, -np.sqrt(3) * a / 2, c / 2),
-
-        #         (a, np.sqrt(3) * a / 3, c / 2),
-        #         (-a, -np.sqrt(3) * a / 3, c / 2),
-        #         (a, -np.sqrt(3) * a / 3, c / 2),
-        #         (-a, np.sqrt(3) * a / 3, c / 2),
-        #     ]
-        # )
 
         vertexpositions = np.array(
             [
@@ -312,7 +202,9 @@ class Polya:
     def get_cycle_index(self, permgroup):
         cycle_types = [p.cycle_structure for p in permgroup]
         monomials = [
-            np.prod([sp.symbols(f"s_{ctype}") ** cycle[ctype] for ctype in cycle.keys()])
+            np.prod(
+                [sp.symbols(f"s_{ctype}") ** cycle[ctype] for ctype in cycle.keys()]
+            )
             for cycle in cycle_types
         ]
         nnodes = np.sum([key * value for key, value in cycle_types[0].items()])
@@ -339,7 +231,10 @@ class Polya:
         dpoly = sp.factor(
             cycle_index.subs(
                 [
-                    (sp.symbols(f"s_{i}"), np.sum([types[j] ** i for j in range(self.ntypes)]))
+                    (
+                        sp.symbols(f"s_{i}"),
+                        np.sum([types[j] ** i for j in range(self.ntypes)]),
+                    )
                     for i in range(1, nnodes + 1)
                 ]
             )
@@ -355,3 +250,17 @@ class Polya:
             )
         )
         return dpoly, onepoly
+
+    def plot(self, g, save_name):
+        # Quick viz plotting
+        # import matplotlib.pyplot as plt
+        fig, ax = plt.subplots(nrows=1, ncols=1)
+
+        h = g
+        # igraph draw
+        # ax1.set_title("Plot with igraph plot")
+        layout = h.layout_kamada_kawai()
+        igraph.plot(h, layout=layout, target=ax)
+        ax.set_title(self.graph_name)
+        plt.axis("off")
+        plt.savefig(save_name)
