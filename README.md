@@ -14,10 +14,10 @@ print(p_g)
 ## Installation
 For a standalone Python package or Conda environment, please use:
 ```bash
-pip install --user Polya
+pip install --user polya
 ```
 
-If you want to install the lastest git commit, please replace ``Polya`` by ``git+https://github.com/killiansheriff/Polya.git``.
+If you want to install the lastest git commit, please replace ``polya`` by ``git+https://github.com/killiansheriff/polya.git``.
 
 ## Contact
 If any questions, feel free to contact me (ksheriff at mit dot edu).
