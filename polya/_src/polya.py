@@ -11,8 +11,10 @@ class Polya:
     """Class to get Polya's pattern inventory.
 
     ```python
+    from polya import Polya
     polya = Polya(graph_name="fcc", ntypes=3)
-    poly, inms = polya.get_gt()
+    p_g, nms = polya.get_gt()
+    print(p_g)
     ```
     """
 
@@ -20,10 +22,70 @@ class Polya:
         """Class to get Polya's pattern inventory.
 
         ```python
+        from polya import Polya
         polya = Polya(graph_name="fcc", ntypes=3)
-        poly, inms = polya.get_gt()
+        p_g, nms = polya.get_gt()
+        print(p_g)
         ```
         """
+        self.graph = Graph(graph_name)
+        self.ntypes = ntypes
+
+    def get_cycle_index(self, permgroup):
+        cycle_types = [p.cycle_structure for p in permgroup]
+        monomials = [
+            np.prod(
+                [sp.symbols(f"s_{ctype}") ** cycle[ctype] for ctype in cycle.keys()]
+            )
+            for cycle in cycle_types
+        ]
+        nnodes = np.sum([key * value for key, value in cycle_types[0].items()])
+        group_size = len(permgroup) + 1  # add identity
+        cycle_index = np.sum(monomials) + sp.symbols(f"s_1") ** nnodes
+        return cycle_index / group_size  # need divided size of group
+
+    def get_gt(self):
+        self.g = self.graph.graph_generator()
+
+        nnodes = self.g.vcount()
+
+        # Compute the automorphism group
+        permgroup = np.array(self.g.get_automorphisms_vf2())
+
+        # Get the permutation representation of the group
+        permgroup = PermutationGroup(permgroup)
+        cycle_index = self.get_cycle_index(permgroup)
+
+        # define symbolic variables for d1 to d10
+        types = sp.symbols(f"t1:{self.ntypes+1}")
+
+        # replace s_i with the sum of the powers of the d variables and factorize
+        dpoly = sp.factor(
+            cycle_index.subs(
+                [
+                    (
+                        sp.symbols(f"s_{i}"),
+                        np.sum([types[j] ** i for j in range(self.ntypes)]),
+                    )
+                    for i in range(1, nnodes + 1)
+                ]
+            )
+        )
+
+        # replace s_i with the sum of the powers of 1 for each variable and factorize
+        onepoly = sp.factor(
+            cycle_index.subs(
+                [
+                    (sp.symbols(f"s_{i}"), sum([1**i for _ in range(self.ntypes)]))
+                    for i in range(1, nnodes + 1)
+                ]
+            )
+        )
+        return dpoly, onepoly
+
+
+class Graph:
+    def __init__(self, graph_name):
         self.graph_generators = {
             "fcc": self.get_fcc_1nn_graph,
             "bcc": self.get_bcc_1nn_graph,
@@ -33,8 +95,17 @@ class Polya:
             "bcc_1nn2nn": self.get_bcc_1nn_2nn_graph,
         }
         self.graph_name = graph_name
-        self.ntypes = ntypes
         self.graph_generator = self.graph_generators[self.graph_name]
+
+    def generate_permutations(self, values, coords):
+        signs = list(itertools.product([1, -1], repeat=len(values)))
+        permutations = []
+        for sign in signs:
+            value = tuple(val * s for val, s in zip(values, sign))
+            permutations.extend(list((itertools.permutations(value, 3))))
+        coords = np.vstack((coords, np.array(list(set(permutations)))))
+
+        return coords
 
     def get_edges(self, vertexpositions, nn_dst, atol=0.1):
         # Subtract each point from all the other points
@@ -48,16 +119,21 @@ class Polya:
         edges = np.unique(np.sort(edges), axis=0)
         return edges, distances
 
-    def generate_permutations(self, values, coords):
-        signs = list(itertools.product([1, -1], repeat=len(values)))
-        permutations = []
-        for sign in signs:
-            value = tuple(val * s for val, s in zip(values, sign))
-            permutations.extend(list((itertools.permutations(value, 3))))
-        coords = np.vstack((coords, np.array(list(set(permutations)))))
+    def plot(self, g, save_name):
+        # Quick viz plotting
+        # import matplotlib.pyplot as plt
+        fig, ax = plt.subplots(nrows=1, ncols=1)
 
-        return coords
+        h = g
+        # igraph draw
+        # ax1.set_title("Plot with igraph plot")
+        layout = h.layout_kamada_kawai()
+        igraph.plot(h, layout=layout, target=ax)
+        ax.set_title(self.graph_name)
+        plt.axis("off")
+        plt.savefig(save_name)
 
+    # IMPLEMENT YOUR GRAPHS HERE
     def get_fcc_1nn_2nn_3nn_graph(self):
         # Central atom (Origin)
         coords = np.zeros((1, 3))
@@ -198,69 +274,3 @@ class Polya:
         g.vs["pos"] = vertexpositions
 
         return g
-
-    def get_cycle_index(self, permgroup):
-        cycle_types = [p.cycle_structure for p in permgroup]
-        monomials = [
-            np.prod(
-                [sp.symbols(f"s_{ctype}") ** cycle[ctype] for ctype in cycle.keys()]
-            )
-            for cycle in cycle_types
-        ]
-        nnodes = np.sum([key * value for key, value in cycle_types[0].items()])
-        group_size = len(permgroup) + 1  # add identity
-        cycle_index = np.sum(monomials) + sp.symbols(f"s_1") ** nnodes
-        return cycle_index / group_size  # need divided size of group
-
-    def get_gt(self):
-        self.g = self.graph_generator()
-
-        nnodes = self.g.vcount()
-
-        # Compute the automorphism group
-        permgroup = np.array(self.g.get_automorphisms_vf2())
-
-        # Get the permutation representation of the group
-        permgroup = PermutationGroup(permgroup)
-        cycle_index = self.get_cycle_index(permgroup)
-
-        # define symbolic variables for d1 to d10
-        types = sp.symbols(f"t1:{self.ntypes+1}")
-
-        # replace s_i with the sum of the powers of the d variables and factorize
-        dpoly = sp.factor(
-            cycle_index.subs(
-                [
-                    (
-                        sp.symbols(f"s_{i}"),
-                        np.sum([types[j] ** i for j in range(self.ntypes)]),
-                    )
-                    for i in range(1, nnodes + 1)
-                ]
-            )
-        )
-
-        # replace s_i with the sum of the powers of 1 for each variable and factorize
-        onepoly = sp.factor(
-            cycle_index.subs(
-                [
-                    (sp.symbols(f"s_{i}"), sum([1**i for _ in range(self.ntypes)]))
-                    for i in range(1, nnodes + 1)
-                ]
-            )
-        )
-        return dpoly, onepoly
-
-    def plot(self, g, save_name):
-        # Quick viz plotting
-        # import matplotlib.pyplot as plt
-        fig, ax = plt.subplots(nrows=1, ncols=1)
-
-        h = g
-        # igraph draw
-        # ax1.set_title("Plot with igraph plot")
-        layout = h.layout_kamada_kawai()
-        igraph.plot(h, layout=layout, target=ax)
-        ax.set_title(self.graph_name)
-        plt.axis("off")
-        plt.savefig(save_name)
