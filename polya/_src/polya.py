@@ -1,6 +1,8 @@
 import numpy as np
 import sympy as sp
-from graphs import (
+from sympy.combinatorics.perm_groups import PermutationGroup
+
+from .graphs import (
     Bcc1n2nnnGraph,
     Bcc1nnGraph,
     Fcc1nn2nn3nnGraph,
@@ -8,7 +10,6 @@ from graphs import (
     Fcc1nnGraph,
     Hcp1nnGraph,
 )
-from sympy.combinatorics.perm_groups import PermutationGroup
 
 GRAPHS = {
     "fcc": Fcc1nnGraph,
