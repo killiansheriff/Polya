@@ -1,7 +1,10 @@
 # Polya 
-A python implementation of Polya's enumeration theory (pattern inventory).
+A python implementation of Polya's enumeration theory and pattern inventory formula.
 
 # Usage 
+
+Here is an example on how to extract the cycle index polynomial (p_g) and number of distinct first coordination polyhedron (nms) for the fcc crystal structure with a number of ntypes = 3 chemical element. Additonal graph geometries can be defined in ``polya/_src/graphs.py``.
+
 ```python
 from polya import Polya
 polya = Polya(graph_name="fcc", ntypes=3)
