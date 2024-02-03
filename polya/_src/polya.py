@@ -60,6 +60,9 @@ class Polya:
     def get_gt(self, ntypes):
         """Get cycle index polynomial and number of distinct graphs.
 
+        Ins:
+            ntypes (int) = Number of atom types
+
         Returns:
             p_g = cycle index polynomial
             nms = number of distinct graphs while taking into account symmeteries
