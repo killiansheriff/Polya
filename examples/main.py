@@ -1,4 +1,5 @@
 from polya import Polya
-polya = Polya(graph_name="fcc", ntypes=3)
-p_g, nms = polya.get_gt()
+
+pl = Polya(graph_name="fcc")
+p_g, nms = pl.get_gt(ntypes=3)
 print(p_g)

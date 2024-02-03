@@ -26,24 +26,23 @@ class Polya:
 
     ```python
     from polya import Polya
-    polya = Polya(graph_name="fcc", ntypes=3)
-    p_g, nms = polya.get_gt()
+    pl = Polya(graph_name="fcc")
+    p_g, nms = pl.get_gt(ntypes=3)
     print(p_g)
     ```
     """
 
-    def __init__(self, graph_name, ntypes):
+    def __init__(self, graph_name):
         """Class to get Polya's pattern inventory.
 
         ```python
         from polya import Polya
-        polya = Polya(graph_name="fcc", ntypes=3)
-        p_g, nms = polya.get_gt()
+        pl = Polya(graph_name="fcc")
+        p_g, nms = pl.get_gt(ntypes=3)
         print(p_g)
         ```
         """
         self.graph = GRAPHS[graph_name]()
-        self.ntypes = ntypes
 
     def get_cycle_index(self, permgroup):
         cycle_types = [p.cycle_structure for p in permgroup]
@@ -55,10 +54,10 @@ class Polya:
         ]
         nnodes = np.sum([key * value for key, value in cycle_types[0].items()])
         group_size = len(permgroup) + 1  # add identity
-        cycle_index = np.sum(monomials) + sp.symbols(f"s_1") ** nnodes
+        cycle_index = np.sum(monomials) + sp.symbols("s_1") ** nnodes
         return cycle_index / group_size  # need divided size of group
 
-    def get_gt(self):
+    def get_gt(self, ntypes):
         """Get cycle index polynomial and number of distinct graphs.
 
         Returns:
@@ -79,7 +78,7 @@ class Polya:
         cycle_index = self.get_cycle_index(permgroup)
 
         # define symbolic variables for d1 to d10
-        types = sp.symbols(f"t1:{self.ntypes+1}")
+        types = sp.symbols(f"t1:{ntypes+1}")
 
         # replace s_i with the sum of the powers of the d variables and factorize
         p_g = sp.factor(
@@ -87,7 +86,7 @@ class Polya:
                 [
                     (
                         sp.symbols(f"s_{i}"),
-                        np.sum([types[j] ** i for j in range(self.ntypes)]),
+                        np.sum([types[j] ** i for j in range(ntypes)]),
                     )
                     for i in range(1, nnodes + 1)
                 ]
@@ -98,7 +97,7 @@ class Polya:
         nms = sp.factor(
             cycle_index.subs(
                 [
-                    (sp.symbols(f"s_{i}"), sum([1**i for _ in range(self.ntypes)]))
+                    (sp.symbols(f"s_{i}"), sum([1**i for _ in range(ntypes)]))
                     for i in range(1, nnodes + 1)
                 ]
             )
