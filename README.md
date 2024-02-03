@@ -11,6 +11,7 @@ pl = Polya(graph_name="fcc")
 p_g, nms = pl.get_gt(ntypes=3)
 print(p_g)
 ```
+
 ## Installation
 For a standalone Python package or Conda environment, please use:
 ```bash
