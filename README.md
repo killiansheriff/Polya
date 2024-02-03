@@ -3,7 +3,7 @@ A python implementation of Polya's enumeration theory and pattern inventory form
 
 # Usage 
 
-Here is an example on how to extract the cycle index polynomial (p_g) and number of distinct first coordination polyhedron (nms) for the fcc crystal structure with a number of ntypes = 3 chemical elements. Additonal graph geometries can be defined in ``polya/_src/graphs.py``. This example can be found in the ``examples`` folder. 
+Here is an example on how to extract the cycle index polynomial (p_g) and number of distinct first coordination polyhedron (nms) for the fcc crystal structure with a number of ntypes = 3 chemical elements. Additonal graph geometries can be defined in ``polya/_src/graphs.py``. This example can be found in the ``examples/`` folder. 
 
 ```python
 from polya import Polya
