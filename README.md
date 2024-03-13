@@ -17,7 +17,7 @@ print(p_g)
 ## Installation
 For a standalone Python package or Conda environment, please use:
 ```bash
-pip install --user polya
+pip install --user polyaenum
 ```
 
 If you want to install the lastest git commit, please replace ``polya`` by ``git+https://github.com/killiansheriff/polya.git``.
