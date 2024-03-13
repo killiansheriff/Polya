@@ -1,4 +1,6 @@
 # Polya 
+![PyPI Version](https://img.shields.io/pypi/v/polya.svg) ![PyPI Downloads](https://static.pepy.tech/badge/polya)
+
 A python implementation of Polya's enumeration theory and pattern inventory formula.
 
 # Usage 
