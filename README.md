@@ -1,5 +1,5 @@
 # Polya 
-![PyPI Version](https://img.shields.io/pypi/v/polya.svg) ![PyPI Downloads](https://static.pepy.tech/badge/polya)
+![PyPI Version](https://img.shields.io/pypi/v/polyaenum.svg) ![PyPI Downloads](https://static.pepy.tech/badge/polyaenum)
 
 A python implementation of Polya's enumeration theory and pattern inventory formula.
 
