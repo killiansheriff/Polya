@@ -41,7 +41,6 @@ If you use this repository in your work, please cite:
 and 
 
 ```
-@misc{TBD
+@article{TBD
 }
 ```
-
