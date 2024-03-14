@@ -29,10 +29,19 @@ If any questions, feel free to contact me (ksheriff at mit dot edu).
 If you use this repository in your work, please cite:
 
 ```
-@article{TOBEUPDATED,
-  title={TOBEUPDATED},
-  author={Sheriff, Killian and Cao, Yifan and Freitas, Rodrigo},
-  journal={arXiv preprint TOBEUPDATED},
-  year={2024}
+@misc{sheriff2023quantifying,
+      title={Quantifying chemical short-range order in metallic alloys}, 
+      author={Killian Sheriff and Yifan Cao and Tess Smidt and Rodrigo Freitas},
+      year={2023},
+      eprint={2311.01545},
+      archivePrefix={arXiv},
+      primaryClass={cond-mat.mtrl-sci}
 }
 ```
+
+and 
+```
+@misc{TBD
+}
+```
+
